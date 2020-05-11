@@ -56,7 +56,9 @@ void exit(const FunctionCallbackInfo<v8::Value>& args) {
 void log(const FunctionCallbackInfo<v8::Value>& args) {
   v8::Isolate* isolate = args.GetIsolate();
 
-  int32_t severity = args[0]->ToInt32(Nan::GetCurrentContext()).ToLocalChecked()->Value();
+  MaybeLocal<Int32> arg0 = args[0]->ToInt32(Nan::GetCurrentContext());
+
+  int32_t severity = arg0.IsEmpty() ? 4 : arg0.ToLocalChecked()->Value(); // Default to a severity of warning
   v8::String::Utf8Value message(isolate, args[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>()));
   syslog(severity, "%s", *message );
 
