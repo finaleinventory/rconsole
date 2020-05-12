@@ -35,13 +35,14 @@ char title[1024];
 
 void open(const FunctionCallbackInfo<v8::Value>& args) {
   v8::Isolate* isolate = args.GetIsolate();
+  v8::HandleScope scope(isolate);
+
   args[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())->WriteUtf8(isolate, (char*) &title);
   int32_t facility = args[1]->ToInt32(Nan::GetCurrentContext()).ToLocalChecked()->Value();
   int32_t log_upto = args[2]->ToInt32(Nan::GetCurrentContext()).ToLocalChecked()->Value();
   setlogmask(LOG_UPTO(log_upto));
   openlog(title, LOG_PID | LOG_NDELAY, facility);
 
-  v8::HandleScope scope(isolate);
   args.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, "true", v8::NewStringType::kNormal).ToLocalChecked());
 }
 
@@ -55,6 +56,7 @@ void exit(const FunctionCallbackInfo<v8::Value>& args) {
 
 void log(const FunctionCallbackInfo<v8::Value>& args) {
   v8::Isolate* isolate = args.GetIsolate();
+  v8::HandleScope scope(isolate);
 
   MaybeLocal<Int32> arg0 = args[0]->ToInt32(Nan::GetCurrentContext());
 
@@ -62,7 +64,6 @@ void log(const FunctionCallbackInfo<v8::Value>& args) {
   v8::String::Utf8Value message(isolate, args[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>()));
   syslog(severity, "%s", *message );
 
-  v8::HandleScope scope(isolate);
   args.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, "true", v8::NewStringType::kNormal).ToLocalChecked());
 }
 
